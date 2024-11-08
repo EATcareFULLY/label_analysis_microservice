@@ -15,15 +15,17 @@ class GeminiService:
         
         if(app_config.gemini_api_key is not None):
             genai.configure(api_key= app_config.gemini_api_key)
-            self.model = genai.GenerativeModel(self.gemini_config.gemini_model)
+            self.model = genai.GenerativeModel(self.gemini_config.gemini_model,
+                                               system_instruction= self.gemini_config.instruction)
             self.generation_config = genai.GenerationConfig(
                 max_output_tokens = self.gemini_config.max_output_tokens,
                 temperature= self.gemini_config.temperature)
             
 
     def create_analysis_prompt(self,label_text: str):
-        return label_text
-    
+
+        prompt: str = f"{self.gemini_config.prompt_task} Response format:{self.gemini_config.prompt_response_format} {self.gemini_config.prompt_label_prefix} {label_text}"
+        return  prompt
 
     def analyze_label(self, label_text):
 

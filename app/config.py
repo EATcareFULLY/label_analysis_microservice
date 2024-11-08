@@ -10,6 +10,7 @@ class GeminiModelConfig(BaseSettings):
     gemini_model: str = "gemini-1.5-flash"
     temperature: float = 1.0
     max_output_tokens: int = 1000
+    instruction: str = "You are food labels analyzer"
 
     prompt_task : str
     prompt_response_format: str

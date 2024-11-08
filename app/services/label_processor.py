@@ -1,4 +1,5 @@
 from app.services.gemini_service import GeminiService
+from app.services.database_service import get_additive_by_code
 import re
 import json
 
@@ -11,11 +12,13 @@ class LabelProcessor:
 
     def process_label(self, label_text: str):
 
-        result = self.gemini_service.analyze_label(label_text).strip()
+        chat_result = self.gemini_service.analyze_label(label_text).strip()
 
-        result = self.parse_response_to_json(result)
+        chat_result = self.parse_response_to_json(chat_result)
 
-        return result
+        additives_result = self.find_additives(label_text)
+
+        return {"chat_response": chat_result, "harmful_additive_list": additives_result}
     
 
     def parse_response_to_json(self, response: str):
@@ -25,14 +28,23 @@ class LabelProcessor:
         response = re.sub(r'\n', '', response)
         response = re.sub(r'\\\"', '"', response)
 
-        #data = {}
-#
-        #for line in response.strip().split("\n"):
-        #    key,value = line.strip().split(":",1)
-        #    data[key] = value.strip()
+        return response
+    
 
-        
-#
+    def find_additives(self, label_test: str):
 
-        return json.loads(response)
+        additive_list = []
+
+        pattern = r'E\d{3,4}'
+
+        matches = re.findall(pattern, label_test)
+
+        for match in matches:
+            
+            temp = get_additive_by_code(match)
+            if temp is not None:
+                additive_list.append(temp)
+
+
+        return additive_list
     

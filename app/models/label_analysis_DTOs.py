@@ -1,4 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Json
+from typing import List, Any
+from app.models.harmful_e_number_additive import HarmfulENumberAdditive
 
 
 class LabelAnalysisRequest(BaseModel):
@@ -9,11 +11,5 @@ class LabelAnalysisRequest(BaseModel):
 
 class LabelAnalysisResponse(BaseModel):
 
-    harmful_ingredients: str
-    harmful_in_excess: str
-    allergens: str
-    is_highly_processed: bool
-    food_addictives: str
-    contains_gluten: bool
-    is_vegan: bool
-    is_vegetarian: bool
+    chat_response: Json[Any]
+    harmful_additive_list: List[HarmfulENumberAdditive]

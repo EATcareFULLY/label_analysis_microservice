@@ -1,5 +1,5 @@
 from ..services.gemini_service import GeminiService
-from ..services.database_service import get_additive_by_code
+from ..services.database_service import DatabaseService
 import re
 
 class LabelProcessor:
@@ -7,6 +7,7 @@ class LabelProcessor:
 
     def __init__(self):
         self.gemini_service = GeminiService()
+        self.database_service = DatabaseService()
 
 
     def process_label(self, label_text: str):
@@ -40,7 +41,7 @@ class LabelProcessor:
 
         for match in matches:
             
-            temp = get_additive_by_code(match)
+            temp = self.database_service.get_additive_by_code(match)
             if temp is not None:
                 additive_list.append(temp)
 

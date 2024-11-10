@@ -1,19 +1,32 @@
 from ..models.harmful_e_number_additive import HarmfulENumberAdditive
+from ..config import get_app_config
+from pydantic import ValidationError
+import redis
+
+
+class DatabaseService:
+
+
+    def __init__(self):
+
+        config = get_app_config()
+
+        self.client = redis.Redis(host=config.db_host, port=config.db_port, db = config.db_num, decode_responses=True)
 
 
 
-mock_db_list = [
-
-HarmfulENumberAdditive(code = "E210", name = "Kwas benzoesowy", desc = "Może wywoływać reakcje alergiczne, szczególnie u osób z astmą, i podejrzewany jest o działanie rakotwórcze przy długotrwałym spożyciu."),
-HarmfulENumberAdditive(code ="E226",name ="Siarczyn wapnia",desc ="Może powodować problemy żołądkowe i alergie, zwłaszcza u astmatyków."),
-HarmfulENumberAdditive(code ="E385",name ="Sól wapniowo-disodowa EDTA (EDTA)",desc ="Stabilizator i przeciwutleniacz stosowany do zachowania koloru i smaku, może powodować reakcje alergiczne, a w nadmiernych ilościach jest toksyczny dla nerek i wątroby oraz zaburza wchłanianie minerałów."),
-
-]
+    def get_additive_by_code(self, code: str):
 
 
-def get_additive_by_code(code: str):
+        data = self.client.hgetall(code)
 
-    temp = [additive for additive in mock_db_list if additive.code == code]
-
-    return None if len(temp) == 0 else temp[0]
+        if data:
+            try:
+                return HarmfulENumberAdditive.model_validate(data)
+            
+            except ValidationError as e:
+                print("Validation error")
+                return None
+            
+        return None
 

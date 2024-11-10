@@ -12,6 +12,10 @@ class AppConfig(BaseSettings):
     prompt_response_format: str
     prompt_label_prefix: str
 
+    db_host: str
+    db_port: int
+    db_num: int
+
 
 _app_config_instance = None
 

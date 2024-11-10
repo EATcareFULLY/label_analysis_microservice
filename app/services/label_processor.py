@@ -1,7 +1,6 @@
-from app.services.gemini_service import GeminiService
-from app.services.database_service import get_additive_by_code
+from ..services.gemini_service import GeminiService
+from ..services.database_service import get_additive_by_code
 import re
-import json
 
 class LabelProcessor:
 
@@ -16,9 +15,9 @@ class LabelProcessor:
 
         chat_result = self.parse_response_to_json(chat_result)
 
-        additives_result = self.find_additives(label_text)
+        additives_list = self.find_additives(label_text)
 
-        return {"chat_response": chat_result, "harmful_additive_list": additives_result}
+        return {"chat_response": chat_result, "harmful_additive_list": additives_list}
     
 
     def parse_response_to_json(self, response: str):
@@ -47,4 +46,5 @@ class LabelProcessor:
 
 
         return additive_list
+    
     

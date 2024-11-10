@@ -1,4 +1,4 @@
-from app.models.harmful_e_number_additive import HarmfulENumberAdditive
+from ..models.harmful_e_number_additive import HarmfulENumberAdditive
 
 
 

@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends
-from app.models.label_analysis_DTOs import LabelAnalysisRequest, LabelAnalysisResponse
-from app.services.label_processor import LabelProcessor
+from ..models.label_analysis_DTOs import LabelAnalysisRequest, LabelAnalysisResponse
+from ..services.label_processor import LabelProcessor
 from typing import Annotated
-from app.dependencies import get_app_config, get_gemini_config
 
 router = APIRouter(
     prefix = "/label-analysis"

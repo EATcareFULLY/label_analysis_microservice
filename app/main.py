@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers import label_analysis, test
+from .routers import label_analysis, test
 
 app = FastAPI()
 app.include_router(label_analysis.router)

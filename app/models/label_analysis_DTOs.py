@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Json
 from typing import List, Any
-from app.models.harmful_e_number_additive import HarmfulENumberAdditive
+from .harmful_e_number_additive import HarmfulENumberAdditive
 
 
 class LabelAnalysisRequest(BaseModel):

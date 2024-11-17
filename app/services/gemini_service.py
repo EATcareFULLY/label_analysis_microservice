@@ -1,6 +1,8 @@
 
 import google.generativeai as genai
 from ..config import get_app_config
+import asyncio
+from functools import partial
 
 
 class GeminiService:
@@ -19,20 +21,26 @@ class GeminiService:
             genai.configure(api_key= app_config.gemini_api_key)
             self.model = genai.GenerativeModel(app_config.gemini_model,
                                                system_instruction= app_config.instruction)
-            self.generation_config = genai.GenerationConfig(
+            generation_config = genai.GenerationConfig(
                 max_output_tokens = app_config.max_output_tokens,
                 temperature= app_config.temperature)
+            self.generate_content_configured = partial(self.model.generate_content, generation_config = generation_config)
+            print("Gemini service initialized successfully")
             
+
+
 
     def create_analysis_prompt(self,label_text: str):
 
         prompt: str = f"{self.gemini_prompt_config['task']} Response format:{self.gemini_prompt_config['response_format']} {self.gemini_prompt_config['label_prefix']} {label_text}"
         return  prompt
 
-    def analyze_label(self, label_text):
+
+
+    async def analyze_label(self, label_text):
 
         prompt = self.create_analysis_prompt(label_text)
-        chat_response = self.model.generate_content(prompt, generation_config = self.generation_config)
+        chat_response = await asyncio.to_thread(self.generate_content_configured, prompt)
         return chat_response.text
 
 

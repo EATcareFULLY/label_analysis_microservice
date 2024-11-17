@@ -1,7 +1,10 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from ..models.label_analysis_DTOs import LabelAnalysisRequest, LabelAnalysisResponse
 from ..services.label_processor import LabelProcessor
-from typing import Annotated
+
+
+
+
 
 router = APIRouter(
     prefix = "/label-analysis"
@@ -9,17 +12,20 @@ router = APIRouter(
 
 
 @router.post("/")
-async def analize_label(request: LabelAnalysisRequest, label_processor: Annotated[LabelProcessor, Depends()]):
+async def analize_label(request: LabelAnalysisRequest, label_processor: LabelProcessor = Depends()):
+
+    print(request)
+
+    if request.label_text is None or len(request.label_text.strip()) == 0:
+        raise HTTPException(status_code = 422, detail= "Label text is unprocessable" )
 
 
-    result = label_processor.process_label(request.label_text)
+    result = await label_processor.process_label(request.label_text)
+    print(result)
 
 
-    return LabelAnalysisResponse.parse_obj(result)
+    return LabelAnalysisResponse.model_validate(result)
 
 
-@router.get("/hello")
-async def hello():
-    return "Hello from label analysis"
 
 

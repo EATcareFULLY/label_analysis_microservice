@@ -8,6 +8,11 @@ router = APIRouter(
     prefix = "/test"
 )
 
+@router.post("/hello")
+async def hello():
+    return "Hello world!"
+
+
 
 @router.post("/analysis-prompt")
 async def analize_label(request: LabelAnalysisRequest, geminiService: Annotated[GeminiService, Depends()]):

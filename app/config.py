@@ -1,7 +1,9 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings
+from functools import lru_cache
 
 
 class AppConfig(BaseSettings):
+
     gemini_api_key: str
     gemini_model: str = "gemini-1.5-flash"
     temperature: float = 1.0
@@ -14,13 +16,10 @@ class AppConfig(BaseSettings):
 
     db_host: str
     db_port: int
-    db_num: int
 
 
-_app_config_instance = None
 
-def get_app_config() -> AppConfig:
-    global _app_config_instance
-    if _app_config_instance is None:
-        _app_config_instance = AppConfig()
-    return _app_config_instance
+@lru_cache
+def get_app_config():
+    return AppConfig()
+

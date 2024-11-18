@@ -11,6 +11,7 @@ class DatabaseService:
 
     def __init__(self):
         self.redis: Optional[redis.Redis] = None
+        print("Database service initialized.")
 
 
     def connect(self):
@@ -24,12 +25,13 @@ class DatabaseService:
                 decode_responses=True
             )
             self.redis = redis.Redis.from_pool(connection_pool)
-            print("Redic client connected")
+            print(" Redis connection pool created.")
 
 
 
     def is_connected(self):
         return self.redis is not None
+    
     
 
     async def close(self):
@@ -38,12 +40,12 @@ class DatabaseService:
 
             await self.redis.aclose(close_connection_pool = True)
             self.redis = None
+            print("Redis connection closed.")
 
 
 
     async def get_additive_by_code(self, code: str):
 
-        print("getting additive")
         data = await self.redis.hgetall(code)
 
         if data:
@@ -51,8 +53,9 @@ class DatabaseService:
                 return HarmfulENumberAdditive.model_validate(data)
             
             except ValidationError as e:
-                print("Validation error")
+                print("HarmufulENumberAdditive - Validation error")
                 return None
+            
             
         return None
 

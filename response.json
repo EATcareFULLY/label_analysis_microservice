@@ -1,0 +1,19 @@
+{
+    "chat_response": {
+        "harmful_ingredients": "",
+        "harmful_in_excess": "",
+        "allergens": "",
+        "is_highly_processed": true,
+        "food_additives": "",
+        "contains_gluten": true,
+        "is_vegan": false,
+        "is_vegetarian": true
+    },
+    "harmful_additive_list": [
+        {
+            "code": "E142",
+            "name": "",
+            "desc": ""
+        }
+    ]
+}

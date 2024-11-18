@@ -16,19 +16,28 @@ class GeminiService:
             "response_format": app_config.prompt_response_format,
             "label_prefix": app_config.prompt_label_prefix
         }
-        
+        self.generate_content_configured = None
+        print("Gemini service initialized.")
+
+    
+    def setup_model(self):
+
+        app_config = get_app_config()
+
         if(app_config.gemini_api_key is not None):
+
             genai.configure(api_key= app_config.gemini_api_key)
-            self.model = genai.GenerativeModel(app_config.gemini_model,
+
+            model = genai.GenerativeModel(app_config.gemini_model,
                                                system_instruction= app_config.instruction)
             generation_config = genai.GenerationConfig(
                 max_output_tokens = app_config.max_output_tokens,
                 temperature= app_config.temperature)
-            self.generate_content_configured = partial(self.model.generate_content, generation_config = generation_config)
-            print("Gemini service initialized successfully")
             
+            self.generate_content_configured = partial(model.generate_content, generation_config = generation_config)
+            print("Gemini model set up.")
 
-
+            
 
     def create_analysis_prompt(self,label_text: str):
 

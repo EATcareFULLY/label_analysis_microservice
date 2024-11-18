@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException
-from .routers import test_router
+from .routers import testing_router
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 from .services.label_processor import LabelProcessor
@@ -14,8 +14,12 @@ from .models.label_analysis_DTOs import LabelAnalysisRequest, LabelAnalysisRespo
 @asynccontextmanager
 async def app_lifespan(app: FastAPI) -> AsyncGenerator[ LabelProcessor, None]:
 
+    
+    gemini_service= GeminiService()
+    database_service = DatabaseService()
 
-    processor = LabelProcessor()
+
+    processor = LabelProcessor(gemini_service, database_service)
     processor.setupConnections()
 
     try:
@@ -32,7 +36,7 @@ async def app_lifespan(app: FastAPI) -> AsyncGenerator[ LabelProcessor, None]:
 app = FastAPI(lifespan = app_lifespan)
 
 
-@app.post("/analyze-label")
+@app.post("/service/analyze-label")
 async def analize_label(request: LabelAnalysisRequest):
 
 
@@ -41,9 +45,6 @@ async def analize_label(request: LabelAnalysisRequest):
     if result is None:
         raise HTTPException(status_code = 422, detail= "Label text is invalid" )
     
-    if any(value is None for value in result.values()):
-        raise HTTPException(status_code=500, detail=f"Error parsing chat response")
-
     try:
         result_model = LabelAnalysisResponse.model_validate(result)
     except Exception as e:
@@ -54,4 +55,4 @@ async def analize_label(request: LabelAnalysisRequest):
 
 
 
-app.include_router(test_router.router)
+app.include_router(testing_router.router)

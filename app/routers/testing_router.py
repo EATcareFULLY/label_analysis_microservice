@@ -8,7 +8,7 @@ router = APIRouter(
     prefix = "/test"
 )
 
-@router.post("/hello")
+@router.get("/hello")
 async def hello():
     return "Hello world!"
 
@@ -34,3 +34,6 @@ async def test_gemini_config():
     gemini_config = get_app_config()
     filtered_config = {key: value for key, value in gemini_config.model_dump().items() if key != "gemini_api_key"}
     return filtered_config
+
+
+

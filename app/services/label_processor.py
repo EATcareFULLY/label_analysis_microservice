@@ -3,6 +3,7 @@ from ..services.database_service import DatabaseService
 import re
 import asyncio
 from threading import Lock
+import json
 
 class LabelProcessor:
 
@@ -20,10 +21,10 @@ class LabelProcessor:
         return cls.__instance
 
 
-    def __init__(self):
+    def __init__(self, gemini_service = None, database_service = None):
         if not self.__initilized:
-            self.gemini_service = GeminiService()
-            self.database_service = DatabaseService()
+            self.gemini_service = gemini_service or GeminiService()
+            self.database_service = database_service or DatabaseService()
             print("Label processor initialazed.")
             self.__initilized = True
 
@@ -58,7 +59,7 @@ class LabelProcessor:
 
 
     def is_label_valid(self, label_text: str):
-        return label_text.strip() and any( char.isalnum() for char in label_text)
+        return  label_text and label_text.strip() and any( char.isalnum() for char in label_text)
 
 
 
@@ -70,28 +71,27 @@ class LabelProcessor:
         json_match = re.search(json_pattern, response)
 
         if not json_match:
-            print(json_match)
             return None
 
         response = json_match.group()
+        response = re.sub(r'\n', ' ', response)
 
-        # remove next line sequences
-        response = re.sub(r'\n', '', response)
-        # remoce escape characters
-        response = re.sub(r'\\\"', '"', response)
+        try:
+            return json.loads(response)
 
-        print(response)
-        return response
+        except json.JSONDecodeError:
+            return None
+    
     
 
 
-    async def find_additives(self, label_test: str):
+    async def find_additives(self, label_text: str):
 
        
         additive_list = []
         
         E_pattern = r'[eE]\d{3,4}'
-        matches = re.findall(E_pattern, label_test)
+        matches = re.findall(E_pattern, label_text)
 
         tasks = [ self._get_additive_and_append(match, additive_list) for match in matches ]
         await asyncio.gather(*tasks)

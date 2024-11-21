@@ -8,6 +8,7 @@ import json
 class LabelProcessor:
 
 
+    
     __instance = None
     __lock = Lock()
     __initilized = False
@@ -25,6 +26,7 @@ class LabelProcessor:
         if not self.__initilized:
             self.gemini_service = gemini_service or GeminiService()
             self.database_service = database_service or DatabaseService()
+            self.char_limit = 3000
             print("Label processor initialazed.")
             self.__initilized = True
 
@@ -45,7 +47,10 @@ class LabelProcessor:
 
     async def process_label(self, label_text: str):
 
+        print(label_text)
+
         if not self.is_label_valid(label_text):
+            print("WTF")
             return None
 
         chat_task = asyncio.create_task(self.gemini_service.analyze_label(label_text))
@@ -59,7 +64,7 @@ class LabelProcessor:
 
 
     def is_label_valid(self, label_text: str):
-        return  label_text and label_text.strip() and any( char.isalnum() for char in label_text)
+        return  label_text is not None and len(label_text) > 0  and len(label_text) <= self.char_limit  and any( char.isalnum() for char in label_text) 
 
 
 

@@ -1,5 +1,6 @@
 from ..services.gemini_service import GeminiService
 from ..services.database_service import DatabaseService
+from ..models.label_analysis_DTOs import ChatResponse
 import re
 import asyncio
 from threading import Lock
@@ -12,6 +13,7 @@ class LabelProcessor:
     __instance = None
     __lock = Lock()
     __initilized = False
+    
 
 
     def __new__(cls, *args, **kwargs):
@@ -71,6 +73,8 @@ class LabelProcessor:
 
     def parse_response_to_json(self, response: str):
 
+        NULL_INFO_PLACEHOLDER = "No information available"
+
         json_pattern = r'\{(.|\n)*\}'
 
         json_match = re.search(json_pattern, response)
@@ -82,9 +86,36 @@ class LabelProcessor:
         response = re.sub(r'\n', ' ', response)
 
         try:
-            return json.loads(response)
+            chat_json =  json.loads(response)
 
-        except json.JSONDecodeError:
+            string_columns = ["harmful_ingredients", "harmful_in_excess", "allergens", "food_additives"]
+            bool_columns = ["is_highly_processed", "contains_gluten", "is_vegan", "is_vegetarian"]
+
+            # convert null to no data placeholder
+
+            for column in string_columns:
+                if column in chat_json:
+                    if chat_json[column] is None or chat_json[column] == "null":
+                        chat_json[column] = NULL_INFO_PLACEHOLDER
+                else:
+                    chat_json[column] = NULL_INFO_PLACEHOLDER
+                
+            for column in bool_columns:
+                if column in chat_json:
+                    if chat_json[column] is True:
+                        chat_json[column] = "true"
+                    elif chat_json[column] is False:
+                        chat_json[column] = "false"
+                    else:
+                        chat_json[column] = NULL_INFO_PLACEHOLDER
+                else:
+                    chat_json[column] = NULL_INFO_PLACEHOLDER
+                
+            return ChatResponse.model_validate(chat_json)
+
+            
+
+        except Exception as e:
             return None
     
     

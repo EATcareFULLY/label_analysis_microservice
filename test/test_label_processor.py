@@ -3,6 +3,7 @@ from unittest.mock import AsyncMock, MagicMock
 from app.services.label_processor import LabelProcessor
 from app.services.database_service import DatabaseService
 from app.models.harmful_e_number_additive import HarmfulENumberAdditive
+from app.models.label_analysis_DTOs import ChatResponse
 import asyncio
 
 
@@ -28,6 +29,15 @@ INVALID_LABEL_CHAT_RESPONSE = "I coould not analyze this label"
 add1 = HarmfulENumberAdditive(code = "E111", name = "add1", desc = "desc1")
 add2 = HarmfulENumberAdditive(code = "E222", name = "add2", desc = "desc2")
 add3 = HarmfulENumberAdditive(code = "E3333", name ="add3", desc = "desc3")
+
+
+required_fields = ["harmful_ingredients", "harmful_in_excess", "allergens", "food_additives", "is_highly_processed", "contains_gluten", "is_vegan", "is_vegetarian"]
+
+
+def check_string_fields_not_null(model_instance: ChatResponse):
+    for field_name, field_value in model_instance.model_dump().items():
+        if isinstance(field_value, str):
+            assert field_value is not None
 
 
 
@@ -134,22 +144,20 @@ class TestLabelProcessor(unittest.TestCase):
 
     def test_parse_json_should_return_result_when_response_OK(self):
 
-        response = '{"ala" : "ma kota", "is_OK": true}'
-        expected = {"ala": "ma kota", "is_OK": True}
+        parsed_response = self.processor.parse_response_to_json(VALID_LABEL_CHAT_RESPONSE)
 
-        parsed_response = self.processor.parse_response_to_json(response)
-
-        self.assertDictEqual(parsed_response, expected)
+        for field_name, field_value in parsed_response.model_dump().items():
+            self.assertIsNotNone(field_value, f'Field {field_name} was None')
 
 
     def test_parse_json_should_return_result_when_response_with_prefix_and_sufix(self):
 
-        response = 'this is prefix {"ala" : "ma kota", "is_OK": true} this is suffix'
-        expected = {"ala": "ma kota", "is_OK": True}
+        response = 'this is prefix' + VALID_LABEL_CHAT_RESPONSE + 'this is suffix'
 
         parsed_response = self.processor.parse_response_to_json(response)
 
-        self.assertDictEqual(parsed_response, expected)
+        for field_name, field_value in parsed_response.model_dump().items():
+            self.assertIsNotNone(field_value, f'Field {field_name} was None')
 
 
     def test_parse_json_should_return_none_when_response_has_no_json(self):

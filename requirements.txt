@@ -1,6 +1,6 @@
-fastapi
-uvicorn
-google-generativeai
-pydantic
-pydantic-settings
-redis
+fastapi==0.115.4
+uvicorn==0.32.0
+google-generativeai==0.8.3
+pydantic==2.9.2
+pydantic-settings==2.6.1
+redis==5.2.0

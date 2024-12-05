@@ -129,7 +129,7 @@ class LabelProcessor:
         E_pattern = r'[eE]\d{3,4}'
         matches = re.findall(E_pattern, label_text)
 
-        tasks = [ self._get_additive_and_append(match, additive_list) for match in matches ]
+        tasks = [ self._get_additive_and_append(match.upper(), additive_list) for match in matches ]
         await asyncio.gather(*tasks)
 
         return additive_list
